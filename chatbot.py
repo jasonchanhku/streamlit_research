@@ -1,7 +1,6 @@
 import streamlit as st
 import openai
 import os
-import tiktoken
 
 from dotenv import load_dotenv
 
