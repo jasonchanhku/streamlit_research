@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="Customer Service Chat",
     page_icon="🧊")
 
-SELECTED_MODEL = "gpt-4"
+SELECTED_MODEL = "gpt-3.5-turbo"
 
 # make model an option and put COST_PER_TOKEN under states
 COSTING_MAP = {
