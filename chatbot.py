@@ -115,14 +115,14 @@ if user_prompt := st.chat_input("Your prompt"):
     st.session_state.cost_of_response = st.session_state.total_tokens * COSTING_MAP[st.session_state.model]
 
 with st.sidebar:
-    st.title("Session Usage Stats:")
+    st.title("Model Selection:")
     st.markdown("""---""")
     st.session_state.model = st.radio("Select Model 👇",
         ["gpt-4", "gpt-3.5-turbo"])
     st.title("Session Usage Stats:")
     st.markdown("""---""")
-    st.write("Total tokens used :", st.session_state.total_tokens)
-    st.write("Total tokens used :", st.session_state.total_tokens)
+    st.write("Selected model: ", st.session_state.model)
+    st.write("Total tokens used: ", st.session_state.total_tokens)
     st.write("Total cost of request: ${:.8f}".format(st.session_state.cost_of_response))
     # Display the button with custom color
     st.button("Clear Chat History and Tokens", on_click = on_button_click)
