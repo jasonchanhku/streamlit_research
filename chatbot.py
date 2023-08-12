@@ -8,12 +8,13 @@ import tiktoken
 load_dotenv()
 
 openai.api_key = st.secrets["OPEN_AI_API"]
+openai.api_base = "https://openai.hk-gpt.net/v1"
 
 st.set_page_config(
     page_title="Customer Service Chat",
     page_icon="🧊")
 
-SELECTED_MODEL = "gpt-3.5-turbo"
+# SELECTED_MODEL = "gpt-3.5-turbo"
 
 # make model an option and put COST_PER_TOKEN under states
 COSTING_MAP = {
@@ -21,7 +22,7 @@ COSTING_MAP = {
     "gpt-4": 0.00006
 }
 
-COST_PER_TOKEN = COSTING_MAP[SELECTED_MODEL]
+# COST_PER_TOKEN = COSTING_MAP[SELECTED_MODEL]
 
 def on_button_click():
     del st.session_state["messages"]
@@ -75,14 +76,15 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.total_tokens = 0
     st.session_state.cost_of_response = 0
+    st.session_state.model = "gpt-4"    
 
 for message in st.session_state["messages"]:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# initialize model
-if "model" not in st.session_state:
-    st.session_state.model = SELECTED_MODEL
+# # initialize model
+# if "model" not in st.session_state:
+#     st.session_state.model = SELECTED_MODEL
 
 # user input
 if user_prompt := st.chat_input("Your prompt"):
@@ -109,12 +111,17 @@ if user_prompt := st.chat_input("Your prompt"):
         message_placeholder.markdown(full_response)
 
     st.session_state.messages.append({"role": "assistant", "content": full_response})
-    st.session_state.total_tokens += num_tokens_from_messages(st.session_state.messages, SELECTED_MODEL)
-    st.session_state.cost_of_response = st.session_state.total_tokens * COST_PER_TOKEN
+    st.session_state.total_tokens += num_tokens_from_messages(st.session_state.messages, st.session_state.model)
+    st.session_state.cost_of_response = st.session_state.total_tokens * COSTING_MAP[st.session_state.model]
 
 with st.sidebar:
     st.title("Session Usage Stats:")
     st.markdown("""---""")
+    st.session_state.model = st.radio("Select Model 👇",
+        ["gpt-4", "gpt-3.5-turbo"])
+    st.title("Session Usage Stats:")
+    st.markdown("""---""")
+    st.write("Total tokens used :", st.session_state.total_tokens)
     st.write("Total tokens used :", st.session_state.total_tokens)
     st.write("Total cost of request: ${:.8f}".format(st.session_state.cost_of_response))
     # Display the button with custom color
