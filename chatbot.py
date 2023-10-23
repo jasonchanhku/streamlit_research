@@ -8,7 +8,7 @@ import tiktoken
 load_dotenv()
 
 openai.api_key = st.secrets["OPEN_AI_API"]
-openai.api_base = "https://openai.hk-gpt.net/v1"
+#openai.api_base = "https://openai.hk-gpt.net/v1"
 
 st.set_page_config(
     page_title="Customer Service Chat",
