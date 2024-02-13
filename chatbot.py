@@ -1,5 +1,5 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 import os
 
 from dotenv import load_dotenv
@@ -7,7 +7,14 @@ import tiktoken
 
 load_dotenv()
 
-openai.api_key = st.secrets["OPEN_AI_API"]
+#openai.api_key = st.secrets["OPEN_AI_API"]
+#openai.api_key = os.getenv("OPEN_AI_API")
+
+client = OpenAI(
+    # This is the default and can be omitted
+    api_key=st.secrets["OPEN_AI_API"],
+)
+
 #openai.api_base = "https://openai.hk-gpt.net/v1"
 
 st.set_page_config(
@@ -19,7 +26,9 @@ st.set_page_config(
 # make model an option and put COST_PER_TOKEN under states
 COSTING_MAP = {
     "gpt-3.5-turbo": 0.000002,
-    "gpt-4": 0.00006
+    "gpt-4": 0.00006,
+    "gpt-4-0125-preview":0.00006, 
+    "gpt-4-1106-preview": 0.00006
 }
 
 # COST_PER_TOKEN = COSTING_MAP[SELECTED_MODEL]
@@ -97,7 +106,7 @@ if user_prompt := st.chat_input("Your prompt"):
         message_placeholder = st.empty()
         full_response = ""
 
-        for response in openai.ChatCompletion.create(
+        for response in client.chat.completions.create(
             model=st.session_state.model,
             messages=[
                 {"role": m["role"], "content": m["content"]}
@@ -105,8 +114,12 @@ if user_prompt := st.chat_input("Your prompt"):
             ],
             stream=True,
         ):
-            full_response += response.choices[0].delta.get("content", "")
+            response_dumps = response.model_dump()
+            delta = response_dumps['choices'][0]['delta']['content']
+            full_response += delta if delta is not None else ""
             message_placeholder.markdown(full_response + "▌")
+            # full_response += response.choices[0].delta.get("content", "")
+            # message_placeholder.markdown(full_response + "▌")
 
         message_placeholder.markdown(full_response)
 
@@ -118,7 +131,7 @@ with st.sidebar:
     st.title("Model Selection:")
     st.markdown("""---""")
     st.session_state.model = st.radio("Select Model 👇",
-        ["gpt-4", "gpt-3.5-turbo"])
+        ["gpt-4","gpt-4-0125-preview","gpt-4-1106-preview", "gpt-3.5-turbo"])
     st.title("Session Usage Stats:")
     st.markdown("""---""")
     st.write("Selected model: ", st.session_state.model)
